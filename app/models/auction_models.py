@@ -17,6 +17,8 @@ class Auction(Base):
 
     starting_amount = Column(Integer, nullable=False)
 
+    status = Column(String, default="OPEN", nullable=False)
+
     # Highest current bid to be stored
     highest_bid = Column(Integer, ForeignKey("bids.id", name="fk_auction_bid", ondelete="CASCADE"))
 

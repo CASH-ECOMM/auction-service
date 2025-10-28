@@ -49,7 +49,8 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                 catalogue_id = request.catalogue_id,
                 start_time = datetime.now(),
                 end_time = request.end_time.ToDatetime(),
-                starting_amount = request.starting_amount
+                starting_amount = request.starting_amount,
+                status = "OPEN"
             )
 
             db.add(new_auction)
