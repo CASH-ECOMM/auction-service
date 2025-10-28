@@ -104,9 +104,9 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                     message="Auction has already ended."
                 )
 
-            #current_highest_bid = db.query(Bid).filter(Bid.id == auction.highest_bid).first()
+            current_highest_bid = db.query(Bid).filter(Bid.id == auction.highest_bid).first()
 
-            #if current_highest_bid and request.amount <= current_highest_bid.amount:
+            if current_highest_bid and request.amount <= current_highest_bid.amount:
                 return auction_service_pb2.PlaceBidResponse(
                     success=False,
                     message="Bid amount must be higher than the current highest bid."
