@@ -198,3 +198,50 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
             )
         finally:
             db.close()
+
+    def GetBidHistory(self, request, context):
+        db = SessionLocal()
+
+        try:
+
+            if not all(
+                [
+                    request.catalogue_id
+                ]
+            ):
+                return auction_service_pb2.GetBidHistoryResponse(
+                    success=False,
+                    message="Missing required fields to get bid history."
+            )
+
+            auction = db.query(Auction).filter(Auction.catalogue_id == request.catalogue_id).first()
+
+            if not auction:
+                return auction_service_pb2.GetBidHistoryResponse(
+                    success=False,
+                    message="Auction not found."
+                )
+
+            bids = db.query(Bid).filter(Bid.auction_id == auction.id).all()
+
+            bid_history = [
+                auction_service_pb2.Bid(
+                    bid_id=bid.id,
+                    user_id=bid.user_id,
+                    amount=bid.amount,
+                    bid_time=bid.created
+                ) for bid in bids
+            ]
+
+            return auction_service_pb2.GetBidHistoryResponse(
+                success=True,
+                bid_history=bid_history,
+                message="Bid history retrieved successfully."
+            )
+        except Exception as e:
+            return auction_service_pb2.GetBidHistoryResponse(
+                success=False,
+                message=f"An error occurred retrieving bid history: {str(e)}"
+            )
+        finally:
+            db.close()
