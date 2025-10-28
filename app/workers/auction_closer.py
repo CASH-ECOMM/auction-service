@@ -4,6 +4,7 @@ from app.db.connection import SessionLocal
 from app.models.auction_models import Auction
 from app.services.auction_service import AuctionService
 
+# Seperate worker to close expired auctions
 def close_expired_auctions():
 
     while True:

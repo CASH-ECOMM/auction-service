@@ -47,7 +47,7 @@ message GetAuctionStatusResponse {
   bool success = 1;
   int64 highest_bidder = 2;
   int64 current_amount = 3;
-  google.protobuf.Timestamp current_time = 4;
+  int64 remaining_time = 4;
   string message = 5;
 }
 

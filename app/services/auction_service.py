@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 from psycopg2 import Timestamp
@@ -163,9 +163,10 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
             )
 
         except Exception as e:
+            db.rollback()
             return auction_service_pb2.GetAuctionEndResponse(
                 success=False,
-                message="An error occurred finding the end time for the auction."
+                message=f"An error occurred finding the end time for the auction: {str(e)}"
             )
         finally:
             db.close()
@@ -183,19 +184,30 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                     message="Auction not found."
                 )
 
-            auction_amount = db.query(Bid).filter(Bid.id == auction.highest_bid).first().amount if auction.highest_bid else auction.starting_amount
-            remaining_time = auction.end_time - datetime.now()
+            auction_amount = db.query(Bid).filter(Bid.id == auction.highest_bid).first()
+
+            if not auction_amount:
+                auction_amount = auction.starting_amount
+            else:
+                auction_amount = auction_amount.amount
+
+            if auction.status == "CLOSED":
+                remaining_time_seconds = 0
+            else:
+                remaining_time_seconds = max(0, int((auction.end_time - datetime.now()).total_seconds()))
 
             return auction_service_pb2.GetAuctionStatusResponse(
+                success=True,
                 highest_bidder = auction.highest_bid,
                 current_amount = auction_amount,
-                current_time = remaining_time
+                remaining_time = remaining_time_seconds,
+                message=auction.status
             )
 
         except Exception as e:
             return auction_service_pb2.GetAuctionStatusResponse(
                 success=False,
-                message="An error occurred finding the status of the auction."
+                message=f"An error occurred finding the status of the auction: {str(e)}"
             )
         finally:
             db.close()
@@ -240,6 +252,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                 message="Bid history retrieved successfully."
             )
         except Exception as e:
+            db.rollback()
             return auction_service_pb2.GetBidHistoryResponse(
                 success=False,
                 message=f"An error occurred retrieving bid history: {str(e)}"
@@ -282,9 +295,10 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
             )
 
         except Exception as e:
+            db.rollback()
             return auction_service_pb2.GetAuctionWinnerResponse(
                 found=False,
-                message="An error occurred finding the winner of the auction."
+                message=f"An error occurred finding the winner of the auction: {str(e)}"
             )
         finally:
             db.close()
