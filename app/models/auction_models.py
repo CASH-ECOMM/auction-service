@@ -9,16 +9,19 @@ class Auction(Base):
 
     # Primary Key
     id = Column(Integer, primary_key=True, index=True)
+    catalogue_id = Column(Integer, nullable=False)
 
     # Start and end times for the auction.
     start_time = Column(DateTime, default=datetime.now(), nullable=False)
     end_time = Column(DateTime, nullable=False)
 
+    starting_amount = Column(Integer, nullable=False)
+
     # Highest current bid to be stored
-    highest_bid = Column(Integer, ForeignKey("bids.id", ondelete="CASCADE"))
+    highest_bid = Column(Integer, ForeignKey("bids.id", name="fk_auction_bid", ondelete="CASCADE"))
 
     # Define relationship with Bid table
-    bids = relationship("Bid", back_populates="platform")
+    bids = relationship("Bid", back_populates="platform", foreign_keys="[Bid.auction_id]")
 
 class Bid(Base):
 
@@ -39,7 +42,7 @@ class Bid(Base):
     created = Column(DateTime, default=datetime.now())
 
     # Foreign keys to connect the bid to the item being bid on and the user, as well as the auction platform
-    auction_id = Column(Integer, ForeignKey("auctions.id", ondelete="CASCADE"), nullable=False)
+    auction_id = Column(Integer, ForeignKey("auctions.id", name="fk_bid_auction", ondelete="CASCADE"), nullable=False)
 
     # Define relationships with the corresponding tables
-    platform = relationship("Auction", back_populates="bids")
+    platform = relationship("Auction", back_populates="bids", foreign_keys="[Bid.auction_id]")

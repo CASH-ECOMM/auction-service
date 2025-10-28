@@ -14,3 +14,10 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def init_db():
+    """Initialize database - create all tables"""
+    from app.models.auction_models import Auction, Bid  # Import models
+
+    #Base.metadata.drop_all(bind=engine, checkfirst=True)
+    Base.metadata.create_all(bind=engine)
