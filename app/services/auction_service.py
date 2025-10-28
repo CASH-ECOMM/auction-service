@@ -17,9 +17,11 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
 
     def StartAuction(self, request, context):
 
+        # Get the database
         db = SessionLocal()
 
         try:
+            # Catch any unfilled requests.
             if not all(
                 [
                 request.user_id,
@@ -33,18 +35,21 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                     message="Missing required fields to start auction."
                 )
 
+            # Check if the starting amount is positive.
             if request.starting_amount <= 0:
                 return auction_service_pb2.StartAuctionResponse(
                     success=False,
                     message="Starting amount must be greater than zero."
                 )
 
+            # Check that the endtime is in the future.
             if request.end_time.ToDatetime() <= datetime.now():
                 return auction_service_pb2.StartAuctionResponse(
                     success=False,
                     message="End time must be in the future."
                 )
 
+            # Create new Auction to add to the db.
             new_auction = Auction(
                 catalogue_id = request.catalogue_id,
                 start_time = datetime.now(),
@@ -105,6 +110,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                     message="Auction has already ended."
                 )
 
+            # Find the highest bid in the auction.
             current_highest_bid = db.query(Bid).filter(Bid.id == auction.highest_bid).first()
 
             if current_highest_bid and request.amount <= current_highest_bid.amount:
@@ -150,6 +156,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
         db = SessionLocal()
 
         try:
+            # Find the auction from the catalogue_id
             auction = db.query(Auction).filter(Auction.catalogue_id == request.catalogue_id).first()
 
             if not auction:
@@ -186,11 +193,13 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
 
             auction_amount = db.query(Bid).filter(Bid.id == auction.highest_bid).first()
 
+            # If there are no bids, set the amount to the starting amount.
             if not auction_amount:
                 auction_amount = auction.starting_amount
             else:
                 auction_amount = auction_amount.amount
 
+            # Check if the auction has ended and assign remaining time in seconds.
             if auction.status == "CLOSED":
                 remaining_time_seconds = 0
             else:
@@ -235,8 +244,10 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                     message="Auction not found."
                 )
 
+            # Get a list of bids for the auction.
             bids = db.query(Bid).filter(Bid.auction_id == auction.id).all()
 
+            # Expand the bids list to return all the required data.
             bid_history = [
                 auction_service_pb2.Bid(
                     bid_id=bid.id,
@@ -288,10 +299,11 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
 
             return auction_service_pb2.GetAuctionWinnerResponse(
                 found=True,
-                user_id = winning_bid.user_id,
+                winner_user_id = winning_bid.user_id,
                 user_first_name = winning_bid.user_first_name,
                 user_last_name = winning_bid.user_last_name,
-                amount = winning_bid.amount
+                final_price = winning_bid.amount,
+                message="Found auction winner."
             )
 
         except Exception as e:
