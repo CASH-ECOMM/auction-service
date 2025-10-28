@@ -10,15 +10,17 @@ message Bid {
   int64 bid_id = 1;
   int64 user_id = 2;
   int64 catalogue_id = 3;
-  double amount = 4;
+  int64 amount = 4;
   google.protobuf.Timestamp bid_time = 5;
 }
 
 // Place Bid Request
 message PlaceBidRequest {
   int64 user_id = 1;
-  int64 catalogue_id = 2;
-  double amount = 3;
+  string user_first_name = 2;
+  string user_last_name = 3;
+  int64 catalogue_id = 4;
+  int64 amount = 5;
 }
 
 // Place Bid Response
@@ -32,7 +34,9 @@ message GetAuctionEndRequest {
 }
 
 message GetAuctionEndResponse {
-  google.protobuf.Timestamp end_time = 1;
+  bool found = 1;
+  google.protobuf.Timestamp end_time = 2;
+  string message = 3;
 }
 
 message GetAuctionStatusRequest {
@@ -40,9 +44,11 @@ message GetAuctionStatusRequest {
 }
 
 message GetAuctionStatusResponse {
-  int64 highest_bidder = 1;
-  double current_amount = 2;
-  google.protobuf.Timestamp current_time = 3;
+  bool success = 1;
+  int64 highest_bidder = 2;
+  int64 current_amount = 3;
+  google.protobuf.Timestamp current_time = 4;
+  string message = 5;
 }
 
 message GetAuctionWinnerRequest {
@@ -50,8 +56,10 @@ message GetAuctionWinnerRequest {
 }
 
 message GetAuctionWinnerResponse {
-  int64 winner_user_id = 1;
-  double final_price = 2;
+  bool found = 1;
+  int64 winner_user_id = 2;
+  int64 final_price = 3;
+  string message = 4;
 }
 
 message GetBidHistoryRequest {
@@ -59,7 +67,21 @@ message GetBidHistoryRequest {
 }
 
 message GetBidHistoryResponse {
-  repeated Bid bid_history = 1;
+  bool success = 1;
+  repeated Bid bid_history = 2;
+  string message = 3;
+}
+
+message StartAuctionRequest {
+  int64 user_id = 1;
+  int64 catalogue_id = 2;
+  int64 starting_amount = 3;
+  google.protobuf.Timestamp end_time = 4;
+}
+
+message StartAuctionResponse {
+  bool success = 1;
+  string message = 2;
 }
 
 // Auction Service Definition
@@ -73,5 +95,7 @@ service AuctionService {
   rpc GetAuctionWinner(GetAuctionWinnerRequest) returns (GetAuctionWinnerResponse);
 
   rpc GetBidHistory(GetBidHistoryRequest) returns (GetBidHistoryResponse);
+
+  rpc StartAuction(StartAuctionRequest) returns (StartAuctionResponse);
 }
 
