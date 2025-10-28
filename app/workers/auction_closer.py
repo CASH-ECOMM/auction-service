@@ -2,6 +2,7 @@ import time
 from datetime import datetime
 from app.db.connection import SessionLocal
 from app.models.auction_models import Auction
+from app.services.auction_service import AuctionService
 
 def close_expired_auctions():
 

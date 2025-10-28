@@ -246,3 +246,45 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
             )
         finally:
             db.close()
+
+    def GetAuctionWinner(self, request, context):
+        db = SessionLocal()
+
+        try:
+            auction = db.query(Auction).filter(Auction.catalogue_id == request.catalogue_id).first()
+
+            if not auction:
+                return auction_service_pb2.GetAuctionWinnerResponse(
+                    found=False,
+                    message="Auction not found."
+                )
+
+            if auction.status != "CLOSED":
+                return auction_service_pb2.GetAuctionWinnerResponse(
+                    found=False,
+                    message="Auction is not yet closed."
+                )
+
+            winning_bid = db.query(Bid).filter(Bid.id == auction.highest_bid).first()
+
+            if not winning_bid:
+                return auction_service_pb2.GetAuctionWinnerResponse(
+                    found=False,
+                    message="No bids were placed on this auction."
+                )
+
+            return auction_service_pb2.GetAuctionWinnerResponse(
+                found=True,
+                user_id = winning_bid.user_id,
+                user_first_name = winning_bid.user_first_name,
+                user_last_name = winning_bid.user_last_name,
+                amount = winning_bid.amount
+            )
+
+        except Exception as e:
+            return auction_service_pb2.GetAuctionWinnerResponse(
+                found=False,
+                message="An error occurred finding the winner of the auction."
+            )
+        finally:
+            db.close()
