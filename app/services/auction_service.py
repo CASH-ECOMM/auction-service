@@ -65,7 +65,6 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
             return auction_service_pb2.StartAuctionResponse(
                 success=True,
                 message="Auction started successfully."
-                #auction_id=new_auction.id
             )
 
         except Exception as e:
@@ -86,8 +85,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                 [
                     request.user_id,
                     request.catalogue_id,
-                    request.user_first_name,
-                    request.user_last_name,
+                    request.username,
                     request.amount
                 ]
             ):
@@ -121,10 +119,9 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
 
             new_bid = Bid(
                 user_id = request.user_id,
-                user_first_name = request.user_first_name,
-                user_last_name = request.user_last_name,
+                username = request.username,
                 amount = request.amount,
-                auction_id = db.query(Auction).filter(Auction.catalogue_id == request.catalogue_id).first().id,
+                auction_id = db.query(Auction).filter(Auction.catalogue_id == request.catalogue_id).first().catalogue_id,
                 created=datetime.now()
             )
 
@@ -139,7 +136,6 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
             return auction_service_pb2.PlaceBidResponse(
                 success=True,
                 message="Bid placed successfully.",
-                #bid_id=new_bid.id
             )
 
         except Exception as e:
@@ -166,7 +162,9 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                 )
 
             return auction_service_pb2.GetAuctionEndResponse(
-                end_time = auction.end_time
+                found=True,
+                end_time = auction.end_time,
+                message="Auction end time found successfully."
             )
 
         except Exception as e:
@@ -245,13 +243,14 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                 )
 
             # Get a list of bids for the auction.
-            bids = db.query(Bid).filter(Bid.auction_id == auction.id).all()
+            bids = db.query(Bid).filter(Bid.auction_id == auction.catalogue_id).all()
 
             # Expand the bids list to return all the required data.
             bid_history = [
                 auction_service_pb2.Bid(
                     bid_id=bid.id,
                     user_id=bid.user_id,
+                    catalogue_id=bid.auction_id,
                     amount=bid.amount,
                     bid_time=bid.created
                 ) for bid in bids
@@ -300,8 +299,6 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
             return auction_service_pb2.GetAuctionWinnerResponse(
                 found=True,
                 winner_user_id = winning_bid.user_id,
-                user_first_name = winning_bid.user_first_name,
-                user_last_name = winning_bid.user_last_name,
                 final_price = winning_bid.amount,
                 message="Found auction winner."
             )

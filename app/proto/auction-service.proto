@@ -17,10 +17,9 @@ message Bid {
 // Place Bid Request
 message PlaceBidRequest {
   int64 user_id = 1;
-  string user_first_name = 2;
-  string user_last_name = 3;
-  int64 catalogue_id = 4;
-  int64 amount = 5;
+  string username = 2;
+  int64 catalogue_id = 3;
+  int64 amount = 4;
 }
 
 // Place Bid Response
@@ -58,10 +57,8 @@ message GetAuctionWinnerRequest {
 message GetAuctionWinnerResponse {
   bool found = 1;
   int64 winner_user_id = 2;
-  string user_first_name = 3;
-  string user_last_name = 4;
-  int64 final_price = 5;
-  string message = 6;
+  int64 final_price = 3;
+  string message = 4;
 }
 
 message GetBidHistoryRequest {
