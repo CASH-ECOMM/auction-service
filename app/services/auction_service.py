@@ -195,8 +195,10 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
             # If there are no bids, set the amount to the starting amount.
             if not bid:
                 auction_amount = auction.starting_amount
+                user = 0
             else:
                 auction_amount = bid.amount
+                user = bid.user_id
 
             # Check if the auction has ended and assign remaining time in seconds.
             if auction.status == "CLOSED":
@@ -206,7 +208,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
 
             return auction_service_pb2.GetAuctionStatusResponse(
                 success=True,
-                highest_bidder = bid.user_id,
+                highest_bidder = user,
                 current_amount = auction_amount,
                 remaining_time = remaining_time_seconds,
                 message=auction.status

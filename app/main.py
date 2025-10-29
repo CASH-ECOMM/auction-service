@@ -9,6 +9,8 @@ from app.proto import auction_service_pb2_grpc
 from app.services.auction_service import AuctionService
 from app.db.connection import init_db
 from app.config import Config
+from app.workers import auction_closer
+from app.workers.auction_closer import close_expired_auctions
 
 # Configure logging
 logging.basicConfig(
@@ -48,6 +50,9 @@ def serve():
     logger.info(f"UserService gRPC server started on {server_address}")
     #logger.info(f"Environment: {Config.ENVIRONMENT}")
     logger.info(f"Database: {Config.DATABASE_URL}")
+
+    # Start the auction closer
+    close_expired_auctions()
 
     # Handle graceful shutdown
     def handle_shutdown(signum, frame):
