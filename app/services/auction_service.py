@@ -51,7 +51,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
 
             # Create new Auction to add to the db.
             new_auction = Auction(
-                catalogue_id = request.catalogue_id,
+                id = request.catalogue_id,
                 start_time = datetime.now(),
                 end_time = request.end_time.ToDatetime(),
                 starting_amount = request.starting_amount,
@@ -94,7 +94,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                     message="Missing required fields to place bid."
                 )
 
-            auction = db.query(Auction).filter(Auction.catalogue_id == request.catalogue_id).first()
+            auction = db.query(Auction).filter(Auction.id == request.catalogue_id).first()
 
             if not auction:
                 return auction_service_pb2.PlaceBidResponse(
@@ -121,7 +121,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                 user_id = request.user_id,
                 username = request.username,
                 amount = request.amount,
-                auction_id = db.query(Auction).filter(Auction.catalogue_id == request.catalogue_id).first().catalogue_id,
+                auction_id = db.query(Auction).filter(Auction.id == request.catalogue_id).first().id,
                 created=datetime.now()
             )
 
@@ -153,7 +153,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
 
         try:
             # Find the auction from the catalogue_id
-            auction = db.query(Auction).filter(Auction.catalogue_id == request.catalogue_id).first()
+            auction = db.query(Auction).filter(Auction.id == request.catalogue_id).first()
 
             if not auction:
                 return auction_service_pb2.GetAuctionEndResponse(
@@ -181,7 +181,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
         db = SessionLocal()
 
         try:
-            auction = db.query(Auction).filter(Auction.catalogue_id == request.catalogue_id).first()
+            auction = db.query(Auction).filter(Auction.id == request.catalogue_id).first()
 
             if not auction:
                 return auction_service_pb2.GetAuctionStatusResponse(
@@ -234,7 +234,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                     message="Missing required fields to get bid history."
             )
 
-            auction = db.query(Auction).filter(Auction.catalogue_id == request.catalogue_id).first()
+            auction = db.query(Auction).filter(Auction.id == request.catalogue_id).first()
 
             if not auction:
                 return auction_service_pb2.GetBidHistoryResponse(
@@ -243,7 +243,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                 )
 
             # Get a list of bids for the auction.
-            bids = db.query(Bid).filter(Bid.auction_id == auction.catalogue_id).all()
+            bids = db.query(Bid).filter(Bid.auction_id == auction.id).all()
 
             # Expand the bids list to return all the required data.
             bid_history = [
@@ -274,7 +274,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
         db = SessionLocal()
 
         try:
-            auction = db.query(Auction).filter(Auction.catalogue_id == request.catalogue_id).first()
+            auction = db.query(Auction).filter(Auction.id == request.catalogue_id).first()
 
             if not auction:
                 return auction_service_pb2.GetAuctionWinnerResponse(
