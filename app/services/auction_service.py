@@ -35,6 +35,14 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                     message="Missing required fields to start auction."
                 )
 
+            # Check if an auction already exists for the given catalogue_id.
+            existing_auction = db.query(Auction).filter(Auction.id == request.catalogue_id).first()
+            if existing_auction:
+                return auction_service_pb2.StartAuctionResponse(
+                    success=False,
+                    message="An auction already exists for this catalogue item."
+                )
+
             # Check if the starting amount is positive.
             if request.starting_amount <= 0:
                 return auction_service_pb2.StartAuctionResponse(
@@ -195,7 +203,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
             # If there are no bids, set the amount to the starting amount.
             if not bid:
                 auction_amount = auction.starting_amount
-                user = 0
+                user = -1
             else:
                 auction_amount = bid.amount
                 user = bid.user_id
