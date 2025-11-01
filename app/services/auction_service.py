@@ -165,7 +165,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
 
             if not auction:
                 return auction_service_pb2.GetAuctionEndResponse(
-                    success=False,
+                    found=False,
                     message="Auction not found."
                 )
 
@@ -178,7 +178,7 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
         except Exception as e:
             db.rollback()
             return auction_service_pb2.GetAuctionEndResponse(
-                success=False,
+                found=False,
                 message=f"An error occurred finding the end time for the auction: {str(e)}"
             )
         finally:
