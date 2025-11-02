@@ -125,6 +125,12 @@ class AuctionService(auction_service_pb2_grpc.AuctionServiceServicer):
                     message="Bid amount must be higher than the current highest bid."
                 )
 
+            if request.amount <= auction.highest_bid:
+                return auction_service_pb2.PlaceBidResponse(
+                    success=False,
+                    message="Bid amount must be higher than the starting amount."
+                )
+
             new_bid = Bid(
                 user_id = request.user_id,
                 username = request.username,
