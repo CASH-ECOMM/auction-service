@@ -14,7 +14,27 @@ Edit `.env` with your configuration (database credentials, gRPC port, etc.)
 
 ### 2. Running with CLI
 
-**Install dependencies:**
+**Install dependencies:**\
+Install uv with standalone installers:
+```bash
+# On macOS and Linux.
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+```powershell
+# On Windows.
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+Or, from PyPI:
+
+```bash
+# With pip.
+pip install uv
+```
+```bash
+# Or pipx.
+pipx install uv
+```
+**Install project dependencies:**
 ```bash
 uv sync
 ```
@@ -37,7 +57,7 @@ Service will start on `localhost:50051`
 docker compose up
 ```
 
-This starts both the auction service (on `localhost:50053`) and PostgreSQL database.
+This starts both the auction service (on `localhost:50054`) and PostgreSQL database.
 
 ## Features
 
