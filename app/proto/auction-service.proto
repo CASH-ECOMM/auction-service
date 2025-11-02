@@ -7,19 +7,19 @@ import "google/protobuf/timestamp.proto";
 // Message Definitions
 
 message Bid {
-  int64 bid_id = 1;
-  int64 user_id = 2;
-  int64 catalogue_id = 3;
-  int64 amount = 4;
+  int32 bid_id = 1;
+  int32 user_id = 2;
+  int32 catalogue_id = 3;
+  int32 amount = 4;
   google.protobuf.Timestamp bid_time = 5;
 }
 
 // Place Bid Request
 message PlaceBidRequest {
-  int64 user_id = 1;
+  int32 user_id = 1;
   string username = 2;
-  int64 catalogue_id = 3;
-  int64 amount = 4;
+  int32 catalogue_id = 3;
+  int32 amount = 4;
 }
 
 // Place Bid Response
@@ -29,7 +29,7 @@ message PlaceBidResponse {
 }
 
 message GetAuctionEndRequest {
-  int64 catalogue_id = 1;
+  int32 catalogue_id = 1;
 }
 
 message GetAuctionEndResponse {
@@ -39,30 +39,30 @@ message GetAuctionEndResponse {
 }
 
 message GetAuctionStatusRequest {
-  int64 catalogue_id = 1;
+  int32 catalogue_id = 1;
 }
 
 message GetAuctionStatusResponse {
   bool success = 1;
-  int64 highest_bidder = 2;
-  int64 current_amount = 3;
-  int64 remaining_time = 4;
+  int32 highest_bidder = 2;
+  int32 current_amount = 3;
+  int32 remaining_time = 4;
   string message = 5;
 }
 
 message GetAuctionWinnerRequest {
-  int64 catalogue_id = 1;
+  int32 catalogue_id = 1;
 }
 
 message GetAuctionWinnerResponse {
   bool found = 1;
-  int64 winner_user_id = 2;
-  int64 final_price = 3;
+  int32 winner_user_id = 2;
+  int32 final_price = 3;
   string message = 4;
 }
 
 message GetBidHistoryRequest {
-  int64 catalogue_id = 1;
+  int32 catalogue_id = 1;
 }
 
 message GetBidHistoryResponse {
@@ -72,9 +72,9 @@ message GetBidHistoryResponse {
 }
 
 message StartAuctionRequest {
-  int64 user_id = 1;
-  int64 catalogue_id = 2;
-  int64 starting_amount = 3;
+  int32 user_id = 1;
+  int32 catalogue_id = 2;
+  int32 starting_amount = 3;
   google.protobuf.Timestamp end_time = 4;
 }
 
